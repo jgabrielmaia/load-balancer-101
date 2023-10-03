@@ -1,0 +1,26 @@
+version: '3'
+services:
+  app1:
+    build: ./app1
+    ports:
+    - "5001:5000"
+  app2:
+    build: ./app2
+    ports:
+    - "5002:5000"
+  nginx:
+    build: ./nginx 
+    ports:
+    - "8080:80"
+    depends_on:
+      - app1
+      - app2
+  vegeta:
+    image: peterevans/vegeta
+    volumes:
+      - ./vegeta:/config
+      - ./vegeta-results:/results
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["vegeta attack -duration=90s -rate 90 -targets /config/targets.txt"]
+    working_dir: /config
+    network_mode: host
